@@ -1,25 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import { withAuthenticator } from "@aws-amplify/ui-react";
+import { useState } from "react";
+import { DataStore } from "@aws-amplify/datastore";
+import { Data } from "./models";
 
-function App() {
+function App({ signOut, user }) {
+  const [data, setData] = useState();
+
+  (async () => {
+    const userData = await DataStore.query(Data);
+    setData(userData);
+  })();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <> {user.attributes.email} </>
+      <button onClick={signOut}>signout</button>
+      {data?.map((item) => (
+        <div key={item.id}>
+          <p>{item?.name}</p>
+          <p>{item?.email}</p>
+        </div>
+      ))}
+    </>
   );
 }
 
-export default App;
+export default withAuthenticator(App);
